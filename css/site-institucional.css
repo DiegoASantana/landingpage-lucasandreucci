@@ -572,12 +572,12 @@ background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(-
 }
 .area-card-face--back p:last-child { margin-bottom: 0; }
 
-/* Botão de fechar no canto SUPERIOR ESQUERDO (pedido específico do cliente,
-   diferente do padrão usual à direita). */
+/* Botão de fechar no canto SUPERIOR DIREITO */
 .area-modal-close {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
+  left: auto;
   width: 36px;
   height: 36px;
   display: flex;
