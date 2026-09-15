@@ -1,0 +1,891 @@
+/* ==========================================================================
+   Cerne — Site Institucional (Landing Page pública)
+   Identidade visual: Dr. Lucas Andreucci da Veiga — Advocacia Criminal
+   Paleta oficial (Insumos Dr_Lucas.pdf): Branco #FFFFFF, Preto #221F1F,
+   Verde Oliva #5E6C44. Tipografia de marca: Object Sans (logotipo/infos
+   complementares) e Times (textos longos).
+   Object Sans é fonte proprietária (Dalton Maag) e não está disponível
+   como web font gratuita — substituída por Inter (já usada no Design
+   System, tipograficamente próxima: sans geométrica/grotesca). "Times"
+   é usada nativamente (Times New Roman/Times/serif), sem web font extra.
+   Reaproveita tokens de design-system.css (importado antes deste arquivo).
+   Todos os tokens abaixo são LOCAIS à landing — não afetam o sistema interno.
+   ========================================================================== */
+
+:root {
+  /* --- Paleta oficial da marca --- */
+  --brand-black: #221F1F;   /* PRETO oficial */
+  --brand-white: #FFFFFF;   /* BRANCO oficial */
+  --brand-olive: #5E6C44;   /* VERDE OLIVA oficial (acento institucional) */
+  --brand-olive-dark: #4D5838;  /* oliva mais escuro — hover de botões/links sobre fundo claro */
+  --brand-olive-bright: #9CAA7C; /* tinta clara do mesmo verde — SOMENTE texto/borda sobre fundo preto (contraste AA) */
+  --brand-olive-soft: rgba(94, 108, 68, 0.12);  /* fundo sutil p/ ícones, chips e badges */
+  --brand-cream: #F6F5F1;   /* variação tonal do branco — alternância de seções */
+
+  /* --- Superfícies escuras (header/footer) --- */
+  --dark-base: var(--brand-black);
+  --dark-surface: #2C2825;
+  --dark-border: rgba(255, 255, 255, 0.14);
+
+  /* --- Texto sobre superfícies escuras (header/footer em preto) --- */
+  --on-dark-primary: var(--brand-white);
+  --on-dark-secondary: rgba(255, 255, 255, 0.72);
+  --on-dark-muted: rgba(255, 255, 255, 0.55);
+
+  /* --- Texto sobre superfícies claras (demais seções) --- */
+  --on-light-primary: var(--brand-black);
+  --on-light-secondary: rgba(34, 31, 31, 0.70);
+  --on-light-muted: rgba(34, 31, 31, 0.55);
+  --border-light: rgba(34, 31, 31, 0.14);
+
+  /* Acento institucional — nomes "gold-*" mantidos por compatibilidade com o
+     HTML (classes .btn-gold já usadas nas páginas), porém representam
+     visualmente o VERDE OLIVA da marca, não dourado. */
+  --gold: var(--brand-olive);
+  --gold-bright: var(--brand-olive);
+  --gold-dark: var(--brand-olive-dark);
+  --gold-ink: var(--brand-white); /* texto sobre botão/acento oliva (AA) */
+  --gold-soft: var(--brand-olive-soft);
+
+  /* Tipografia de marca — SOMENTE nesta landing */
+  --font-brand: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Times New Roman', Times, Georgia, serif; /* textos longos, conforme identidade */
+
+  --site-max: 1120px;
+
+  /* >>> VELOCIDADE DA ANIMAÇÃO DE FLIP DOS CARDS DE "ÁREAS DE ATUAÇÃO" <<<
+     Este é o ÚNICO lugar para ajustar a duração do efeito. Controla ao mesmo
+     tempo o giro do cartão e o seu deslocamento/crescimento até o centro da
+     tela (as duas coisas precisam durar o mesmo para parecer um movimento só).
+     Valores maiores = mais lento. Sugestões: 520ms (rápido), 700ms (atual),
+     900ms (bem lento).
+     ATENÇÃO: ao alterar aqui, ajuste também a constante TRANSITION_MS em
+     js/site-institucional.js para o mesmo número (ela sincroniza o momento
+     em que o foco/limpeza acontece ao fim da animação). */
+  --area-flip-duration: 700ms;
+}
+
+/* Base clara da landing (o design-system já define box-sizing e fontes) */
+.site {
+  color: var(--on-light-primary);
+  background: var(--brand-white);
+  font-family: var(--font-brand);
+}
+
+.site :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(94, 108, 68, 0.45); /* anel oliva, visível sobre claro e escuro */
+  border-radius: var(--radius-sm);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+.section {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+}
+
+/* Alternância de superfícies claras (respiro/contraste sem sair da paleta) */
+.section-alt {
+  background: var(--brand-cream);
+}
+
+.section-title {
+  font-family: var(--font-brand);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--on-light-primary);
+  line-height: 1.15;
+  letter-spacing: 0.005em;
+  margin-bottom: var(--space-3);
+}
+
+.section-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-olive);
+  margin-bottom: var(--space-2);
+}
+
+.section-lead {
+  font-size: 16px;
+  color: var(--on-light-secondary);
+  max-width: 640px;
+  margin: 0 auto var(--space-8);
+}
+
+.text-center-block { text-align: center; }
+
+/* Botão de acento institucional (verde oliva) — CTA principal de contato */
+.btn-gold {
+  background: var(--brand-olive);
+  color: var(--gold-ink);
+  font-weight: 600;
+}
+.btn-gold:hover:not(:disabled) {
+  background: var(--brand-olive-bright);
+  color: var(--gold-ink);
+}
+.btn-gold svg { color: var(--gold-ink); }
+
+/* ==========================================================================
+   Header fixo
+   ========================================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--brand-olive);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--dark-border);
+  /* Token local (escopo .site-header), NÃO altera --on-dark-secondary global:
+     sobre o novo fundo #5E6C44, rgba(255,255,255,0.72) padrão dá 3.84:1
+     (abaixo de 4.5:1 AA para texto normal). Elevando a opacidade do branco
+     para 0.85 sobe o contraste para 4.63:1 (AA). */
+  --header-on-dark-secondary: rgba(255, 255, 255, 0.85);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+  gap: var(--space-4);
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--on-dark-primary);
+  text-decoration: none;
+}
+.site-brand:hover { text-decoration: none; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.site-nav a.nav-link {
+  color: var(--header-on-dark-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: var(--space-2) 0;
+  border-bottom: 2px solid transparent;
+  transition: color 150ms, border-color 150ms;
+}
+.site-nav a.nav-link:hover {
+  color: var(--on-dark-primary);
+  text-decoration: none;
+  border-bottom-color: var(--brand-olive-bright);
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-md);
+  /* Fundo do header agora é --brand-olive (#5E6C44); usar --brand-olive-dark
+     aqui mantém o botão visualmente distinto do header (evita "sumir" por
+     igualar as cores) e passa AA com folga: branco sobre #4D5838 ≈ 7.6:1. */
+  background: var(--brand-olive-dark);
+  color: var(--brand-white);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms;
+}
+.nav-cta:hover { background: var(--brand-olive-bright); color: var(--brand-white); text-decoration: none; }
+.nav-cta svg { width: 16px; height: 16px; }
+
+/* Toggle único de habilitação do botão "Acessar sistema" no header.
+   Controlado pelo atributo data-show-login no <body> (ver comentário no HTML).
+   data-show-login="false" (padrão) -> botão oculto.
+   data-show-login="true"           -> botão visível. */
+[data-show-login="false"] .nav-cta { display: none; }
+
+/* Botão hambúrguer (mobile) */
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-sm);
+  color: var(--on-dark-primary);
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.nav-toggle svg { width: 22px; height: 22px; }
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  /* Fundo fotográfico (prédios/skyline) + overlay escuro para legibilidade.
+     background-color funciona como fallback caso a imagem não carregue. */
+  background-color: var(--brand-black);
+  background-image:
+    linear-gradient(180deg, rgba(34, 31, 31, 0.72) 0%, rgba(34, 31, 31, 0.80) 100%),
+    url('../img/image_fundo_predios.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--on-dark-primary);
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  /* filete oliva decorativo, sutil — referência ao acento institucional */
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 10px;
+  /* O oliva fica sólido entre 30% e 70% da largura */
+background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(--brand-olive) 80%, transparent 100%);
+  opacity: 0.7;
+}
+.hero .container {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+  max-width: 860px;
+  text-align: left;
+}
+.hero-eyebrow {
+  display: inline-block;  
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-dark-secondary);
+  margin-bottom: var(--space-4);
+}
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.005em;
+  color: var(--on-dark-primary);
+  margin-bottom: var(--space-4);
+}
+/* Segunda parte do título (verde oliva) sobre o overlay escuro do hero:
+   --brand-olive-dark (#4D5838) não passa AA aqui (1.4:1 a 2.2:1 contra o
+   overlay, dependendo do trecho da foto). --brand-olive-bright (#9CAA7C)
+   é o token já existente no arquivo, documentado como "SOMENTE texto sobre
+   fundo preto (contraste AA)" — reaproveitado aqui em vez de criar uma cor
+   nova. Contra o overlay dá 4.3:1 no pior caso (área mais clara da foto) e
+   4.9–6.7:1 nas demais áreas — h1 é "texto grande" (40/48px bold), AA exige
+   3:1, então passa com folga em toda a extensão da foto. */
+.hero h1 .hero-title-accent {
+  color: var(--brand-olive-bright);
+}
+.hero p.hero-sub {
+  font-size: 18px;
+  color: var(--brand-white);
+  line-height: 1.6;
+  margin: 0 0 var(--space-8);
+  max-width: 640px;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+.hero-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--on-dark-primary);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0 var(--space-4);
+  height: 48px;
+}
+.hero-phone:hover { text-decoration: none; color: var(--brand-olive-bright); }
+.hero-phone svg { width: 20px; height: 20px; }
+
+@media (min-width: 700px) {
+  .hero h1 { font-size: 48px; }
+}
+
+/* ==========================================================================
+   Sobre
+   ========================================================================== */
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-10);
+  align-items: center;
+}
+.about-photo {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--brand-cream);
+  box-shadow: 0 18px 40px rgba(34, 31, 31, 0.18);
+  border: 1px solid var(--border-light);
+  outline: 1px solid rgba(94, 108, 68, 0.35);
+  outline-offset: -6px;
+}
+.about-content .section-title { text-align: left; }
+.about-content p {
+  font-family: var(--font-serif); /* textos longos seguem a identidade (Times) */
+  color: var(--on-light-secondary);
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 var(--space-4);
+}
+
+.credential-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-5) 0 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.credential-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--on-light-primary);
+}
+.credential-list li svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--brand-olive);
+  margin-top: 2px;
+}
+
+.oab-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-5);
+  padding: 8px 14px;
+  border: 1px solid var(--brand-olive);
+  border-radius: var(--radius-md);
+  background: var(--brand-olive-soft);
+  color: var(--brand-olive-dark);
+  font-size: 13px;
+  font-weight: 600;
+}
+.oab-badge svg { color: var(--brand-olive-dark); }
+
+@media (max-width: 820px) {
+  .about-grid { grid-template-columns: 1fr; gap: var(--space-6); }
+  .about-photo { max-width: 320px; margin: 0 auto; }
+  .about-content .section-title { text-align: center; }
+}
+
+/* ==========================================================================
+   Áreas de atuação — cartão único com transição "shared element" (FLIP)
+   Cada .area-card é o MESMO elemento do início ao fim: ao ser ativado, o JS
+   (site-institucional.js) captura seu getBoundingClientRect(), fixa o card
+   nessa posição (position: fixed) e então anima top/left/width/height até
+   um retângulo centralizado na tela, ao mesmo tempo em que gira
+   .area-card-flip em 180deg — a troca de conteúdo (resumo -> detalhe)
+   acontece pela física do 3D CSS (backface-visibility), sem overlay
+   separado. Ao fechar, o processo é revertido.
+   ========================================================================== */
+
+.area-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+}
+/* IMPORTANTE: o .area-card é apenas o "palco" do giro — ele NÃO tem
+   aparência própria (sem fundo, borda, cantos arredondados ou sombra).
+   Todo o visual do cartão vive nas FACES (.area-card-face), que são o que
+   efetivamente gira. Se o fundo/borda ficassem aqui, o usuário veria uma
+   caixa estática se expandindo com outra caixa girando dentro dela — e as
+   pontas quadradas da face apareceriam por cima dos cantos arredondados
+   do card. Mantendo o palco invisível, o que se vê girando é o cartão
+   inteiro. */
+.area-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+  position: relative;
+  /* Altura FIXA (não min-height): necessária para .area-card-flip resolver
+     height: 100% corretamente (percentual só funciona com altura explícita
+     no ancestral) e para as faces (position: absolute) preencherem o card
+     com consistência visual entre os 4 itens do grid. Quando o card está
+     flutuando (.is-floating), o height inline definido via JS sobrepõe
+     este valor normalmente (estilo inline tem prioridade sobre a folha). */
+  height: 236px;
+  /* Perspectiva para o giro 3D de .area-card-flip ter profundidade (sem
+     isso o rotateY fica "chapado"). Definida no próprio card (não no
+     .area-grid) porque, quando o card vira position: fixed (flutuando),
+     ele deixa de fazer parte do contexto de formatação do grid — a
+     perspective precisa estar no ancestral direto dos filhos 3D em
+     qualquer um dos dois estados. */
+  perspective: 1400px;
+  transition: transform 150ms ease;
+}
+/* Hover existente (destaque visual). O leve deslocamento fica no palco
+   (não conflita com o rotateY das faces, que são outro elemento) e o
+   realce de borda/sombra vai na face visível. Só se aplica quando o card
+   NÃO está flutuando/expandido. */
+.area-card:hover:not(.is-floating) {
+  transform: translateY(-3px);
+}
+.area-card:hover:not(.is-floating) .area-card-face--front {
+  border-color: var(--brand-olive);
+  box-shadow: 0 14px 30px rgba(34, 31, 31, 0.12);
+}
+
+/* Contêiner que efetivamente gira em 3D. Preenche 100% do .area-card, então
+   quando o JS anima largura/altura do card até o tamanho do "modal", o flip
+   já acontece nas dimensões finais corretas. */
+.area-card-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  /* AJUSTE DA VELOCIDADE DO GIRO: altere o valor abaixo (--area-flip-duration,
+     definido em :root no topo deste arquivo). Ele controla, ao mesmo tempo,
+     o giro e o deslocamento/redimensionamento do card (.area-card.is-floating),
+     que precisam ter a MESMA duração. Se mudar aqui, atualize também a
+     constante TRANSITION_MS em js/site-institucional.js. */
+  transition: transform var(--area-flip-duration) cubic-bezier(0.4, 0, 0.2, 1);
+}
+.area-card.is-expanded .area-card-flip {
+  transform: rotateY(180deg);
+}
+
+/* As duas faces ocupam o mesmo espaço e carregam TODO o visual do cartão
+   (fundo, borda, cantos arredondados, filete oliva no topo e sombra) — são
+   elas que giram, então é aqui que a aparência precisa estar.
+   backface-visibility esconde a face que está "de costas" a cada instante. */
+.area-card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
+  background: var(--brand-white);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--brand-olive);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 20px rgba(34, 31, 31, 0.08);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.area-card-face--front {
+  transform: rotateY(0deg);
+}
+.area-card-face--back {
+  transform: rotateY(180deg);
+  /* Espaço no topo suficiente para o botão de fechar (36px + offset) não
+     se sobrepor ao ícone/título da face de detalhe. */
+  padding-top: 68px;
+  overflow-y: auto;
+}
+/* A UA stylesheet aplica [hidden] { display: none } com a mesma
+   especificidade da regra .area-card-face { display: flex } acima; como
+   regra de autor entra depois da UA no cascade, sem isto o [hidden] seria
+   ignorado e a face de verso ficaria sempre presente/clicável. */
+.area-card-face--back[hidden] { display: none; }
+
+/* Segurança extra (além do atributo hidden) para impedir foco/clique na
+   face que está de costas durante e após o giro, mesmo em navegadores que
+   ainda permitem hit-testing sobre elementos com backface-visibility:hidden. */
+.area-card.is-expanded .area-card-face--front { pointer-events: none; }
+.area-card:not(.is-expanded) .area-card-face--back { pointer-events: none; }
+
+.area-card .area-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--brand-olive-soft);
+  color: var(--brand-olive-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
+}
+.area-card .area-icon svg { width: 22px; height: 22px; }
+.area-card-face--front h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-light-primary);
+  margin-bottom: var(--space-2);
+}
+.area-card-face--front p { font-size: 13px; color: var(--on-light-secondary); margin: 0; }
+
+/* Affordance textual indicando que o card é acionável (clique/teclado abre detalhe).
+   Necessário porque o card virou um controle interativo (role="button"), não só
+   um item decorativo — usuários de toque/teclado não têm o hover como pista. */
+.area-card-more {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-olive-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.area-card-face--back h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--on-light-primary);
+  margin: 0 0 var(--space-4);
+  padding-right: var(--space-8);
+  flex-shrink: 0;
+}
+.area-card-face--back p {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--on-light-secondary);
+  margin: 0 0 var(--space-4);
+}
+.area-card-face--back p:last-child { margin-bottom: 0; }
+
+/* Botão de fechar no canto SUPERIOR ESQUERDO (pedido específico do cliente,
+   diferente do padrão usual à direita). */
+.area-modal-close {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--brand-white);
+  color: var(--on-light-secondary);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  flex-shrink: 0;
+}
+.area-modal-close:hover {
+  background: var(--brand-olive-soft);
+  color: var(--brand-olive-dark);
+}
+.area-modal-close svg { width: 18px; height: 18px; }
+
+/* Placeholder inserido no grid no lugar do card enquanto ele flutua
+   (position: fixed), para os demais cards não reajustarem/colapsarem. */
+.area-card-placeholder {
+  visibility: hidden;
+}
+
+/* Card flutuante: sai do fluxo do grid e passa a ter top/left/width/height
+   definidos via JS (inline style), animando até o centro da tela. A
+   transição destas propriedades usa a MESMA duração/timing da rotação do
+   .area-card-flip acima, para dar sensação de um único movimento contínuo. */
+.area-card.is-floating {
+  position: fixed;
+  margin: 0;
+  z-index: 600;
+  cursor: default;
+  transition: top var(--area-flip-duration) cubic-bezier(0.4, 0, 0.2, 1),
+              left var(--area-flip-duration) cubic-bezier(0.4, 0, 0.2, 1),
+              width var(--area-flip-duration) cubic-bezier(0.4, 0, 0.2, 1),
+              height var(--area-flip-duration) cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Sombra mais forte enquanto o cartão está flutuando — aplicada nas faces
+   (que são a superfície visível), não no palco. */
+.area-card.is-floating .area-card-face {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Backdrop simples atrás do card flutuante — escurece o restante da página
+   e permite fechar ao clicar fora. Fade-in/out próprio, independente da
+   transição de posição/giro do card. */
+.area-card-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 31, 31, 0.72);
+  z-index: 550;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+.area-card-backdrop[hidden] { display: none; }
+.area-card-backdrop.is-visible { opacity: 1; }
+
+/* Bloqueia o scroll da página enquanto um card de área de atuação está
+   expandido (classe alternada via JS em document.body). */
+body.area-modal-locked { overflow: hidden; }
+
+@media (max-width: 900px) {
+  .area-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .area-grid { grid-template-columns: 1fr; }
+  .area-card-face--back { padding: var(--space-6) var(--space-5) var(--space-5); }
+}
+
+/* Acessibilidade: respeitar movimento reduzido (mesmo padrão de
+   design-system.css) — o JS lê esta preferência via matchMedia e pula as
+   transições de posição/tamanho/giro, alternando os estados diretamente;
+   as regras abaixo removem qualquer transição residual em CSS. */
+@media (prefers-reduced-motion: reduce) {
+  .area-card,
+  .area-card-flip,
+  .area-card-backdrop {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Contato
+   ========================================================================== */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-10);
+  align-items: start;
+}
+.contact-info .contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.contact-info .contact-item .ci-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--brand-olive-soft);
+  color: var(--brand-olive-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.contact-info .contact-item .ci-icon svg { width: 20px; height: 20px; }
+.contact-info .contact-item .ci-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--on-light-muted);
+  font-weight: 600;
+}
+.contact-info .contact-item a,
+.contact-info .contact-item .ci-value {
+  font-size: 15px;
+  color: var(--on-light-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.contact-info .contact-item a:hover { color: var(--brand-olive-dark); }
+
+.contact-form-card {
+  background: var(--brand-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+}
+.contact-form-card .field label {
+  color: var(--on-light-primary);
+}
+.contact-form-card .input:focus,
+.contact-form-card textarea.input:focus {
+  border-color: var(--brand-olive);
+  box-shadow: 0 0 0 3px rgba(94, 108, 68, 0.30);
+}
+
+.form-notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-olive-soft);
+  border: 1px solid rgba(94, 108, 68, 0.30);
+  color: var(--brand-olive-dark);
+  font-size: 12px;
+  margin-bottom: var(--space-5);
+}
+.form-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* Aviso de finalidade do tratamento de dados (LGPD): reaproveita o padrão
+   visual de .form-notice, mas fica imediatamente antes do checkbox de
+   consentimento — daí o espaçamento menor e a margem superior. */
+.form-lgpd-notice {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-3);
+  line-height: 1.5;
+}
+
+/* Consentimento LGPD: o rótulo é uma frase, e não um rótulo curto de campo,
+   por isso alinha ao topo do checkbox em vez de centralizar. Regra escopada
+   ao card de contato — .checkbox-row do design system segue inalterada. */
+.contact-form-card .checkbox-row { align-items: flex-start; }
+.contact-form-card .checkbox-row input[type="checkbox"] { margin-top: 2px; }
+.contact-form-card .checkbox-row label {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--on-light-primary);
+}
+
+/* Honeypot anti-spam: o campo precisa continuar sendo um campo de formulário
+   real e preenchível por bots (por isso NÃO usamos display:none, visibility
+   ou hidden), mas nunca deve ser visto nem alcançado por um usuário humano.
+   Removido do fluxo e posicionado fora da viewport. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Mensagens de erro do formulário de contato: .field-error e
+   .form-status--sucesso declaram display: block, e regra de autor vence a UA
+   no cascade com a mesma especificidade — sem isto o atributo [hidden] dos
+   <span>/<p> de erro seria ignorado e cada placeholder vazio ainda reservaria
+   espaço vertical no formulário. Mesmo motivo da regra
+   .area-card-face--back[hidden] acima. Escopado ao card de contato: o design
+   system segue inalterado para as outras telas do protótipo. */
+.contact-form-card .field-error[hidden],
+.contact-form-card .form-status--sucesso[hidden] { display: none; }
+
+/* Área de status do envio (#erro-envio): o mesmo elemento com aria-live serve
+   para a falha de envio (classe .field-error, vermelho, padrão do design
+   system) e para a confirmação de recebimento — o JS troca as duas classes.
+   Um único ponto de anúncio evita que o leitor de tela precise procurar
+   mensagens em lugares diferentes conforme o resultado. */
+.form-status--sucesso {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+@media (max-width: 820px) {
+  .contact-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  background: var(--brand-black);
+  color: var(--on-dark-secondary);
+  border-top: 1px solid var(--dark-border);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-6);
+}
+.footer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--dark-border);
+}
+.footer-brand .brand-name {
+  font-family: var(--font-brand);
+  color: var(--on-dark-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+.footer-brand .brand-sub { color: var(--brand-olive-bright); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+.footer-col h4 {
+  color: var(--on-dark-primary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-3);
+}
+.footer-col a, .footer-col p {
+  display: block;
+  color: var(--on-dark-secondary);
+  font-size: 14px;
+  text-decoration: none;
+  margin-bottom: var(--space-2);
+}
+.footer-col a:hover { color: var(--brand-olive-bright); text-decoration: none; }
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  font-size: 12px;
+  color: var(--on-dark-muted);
+}
+.footer-bottom a.footer-login {
+  color: var(--on-dark-secondary);
+  text-decoration: none;
+  font-size: 12px;
+}
+.footer-bottom a.footer-login:hover { color: var(--brand-olive-bright); }
+
+/* ==========================================================================
+   Menu mobile
+   ========================================================================== */
+
+@media (max-width: 860px) {
+  .nav-toggle { display: inline-flex; }
+  .site-nav {
+    position: absolute;
+    top: 84px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--dark-surface);
+    border-top: 1px solid var(--dark-border);
+    padding: var(--space-3) var(--space-6) var(--space-5);
+    box-shadow: var(--shadow-lg);
+  }
+  .site-nav:not(.open) { display: none; }
+  .site-nav a.nav-link {
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--dark-border);
+  }
+  .site-nav a.nav-link:hover { border-bottom-color: var(--dark-border); }
+  .nav-cta {
+    margin-top: var(--space-4);
+    justify-content: center;
+    height: 44px;
+  }
+}
+
+/* Logo do escritorio no header (versão branca — header em fundo preto) */
+.site-brand .brand-logo { height: 70px; width: auto; max-width: 70vw; display: block; }
+@media (max-width: 560px) { .site-brand .brand-logo { height: 44px; } }
