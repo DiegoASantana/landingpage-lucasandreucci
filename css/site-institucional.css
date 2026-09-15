@@ -577,7 +577,7 @@ background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(-
 .area-modal-close {
   position: absolute;
   top: var(--space-4);
-  left: var(--space-4);
+  right: var(--space-4);
   width: 36px;
   height: 36px;
   display: flex;
