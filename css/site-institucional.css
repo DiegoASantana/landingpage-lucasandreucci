@@ -1,15 +1,15 @@
 /* ==========================================================================
-   Cerne — Site Institucional (Landing Page pública)
+   Site Institucional (landing page pública)
    Identidade visual: Dr. Lucas Andreucci da Veiga — Advocacia Criminal
-   Paleta oficial (Insumos Dr_Lucas.pdf): Branco #FFFFFF, Preto #221F1F,
-   Verde Oliva #5E6C44. Tipografia de marca: Object Sans (logotipo/infos
-   complementares) e Times (textos longos).
+   Paleta da marca: Branco #FFFFFF, Preto #221F1F, Verde Oliva #5E6C44.
+   Tipografia de marca: Object Sans (logotipo/infos complementares) e Times
+   (textos longos).
    Object Sans é fonte proprietária (Dalton Maag) e não está disponível
-   como web font gratuita — substituída por Inter (já usada no Design
-   System, tipograficamente próxima: sans geométrica/grotesca). "Times"
+   como web font gratuita — substituída por Inter (já usada no design
+   system, tipograficamente próxima: sans geométrica/grotesca). "Times"
    é usada nativamente (Times New Roman/Times/serif), sem web font extra.
    Reaproveita tokens de design-system.css (importado antes deste arquivo).
-   Todos os tokens abaixo são LOCAIS à landing — não afetam o sistema interno.
+   Os tokens abaixo são locais a este arquivo.
    ========================================================================== */
 
 :root {
@@ -213,12 +213,6 @@
 .nav-cta:hover { background: var(--brand-olive-bright); color: var(--brand-white); text-decoration: none; }
 .nav-cta svg { width: 16px; height: 16px; }
 
-/* Toggle único de habilitação do botão "Acessar sistema" no header.
-   Controlado pelo atributo data-show-login no <body> (ver comentário no HTML).
-   data-show-login="false" (padrão) -> botão oculto.
-   data-show-login="true"           -> botão visível. */
-[data-show-login="false"] .nav-cta { display: none; }
-
 /* Botão hambúrguer (mobile) */
 .nav-toggle {
   display: none;
@@ -392,8 +386,10 @@ background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(-
   color: var(--brand-olive-dark);
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
 }
-.oab-badge svg { color: var(--brand-olive-dark); }
+/* Tamanho fixo: sem ele, o texto em linha única encolhe o SVG até sumir. */
+.oab-badge svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--brand-olive-dark); }
 
 @media (max-width: 820px) {
   .about-grid { grid-template-columns: 1fr; gap: var(--space-6); }
@@ -774,8 +770,8 @@ body.area-modal-locked { overflow: hidden; }
    no cascade com a mesma especificidade — sem isto o atributo [hidden] dos
    <span>/<p> de erro seria ignorado e cada placeholder vazio ainda reservaria
    espaço vertical no formulário. Mesmo motivo da regra
-   .area-card-face--back[hidden] acima. Escopado ao card de contato: o design
-   system segue inalterado para as outras telas do protótipo. */
+   .area-card-face--back[hidden] acima. Escopado ao card de contato para não
+   alterar o comportamento padrão do design system. */
 .contact-form-card .field-error[hidden],
 .contact-form-card .form-status--sucesso[hidden] { display: none; }
 

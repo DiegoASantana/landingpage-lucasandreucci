@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Cerne — Máscaras de input (live, ao digitar)
+   Máscaras de input (live, ao digitar)
    Utilitário reutilizável, vanilla JS, sem dependências.
 
    Uso declarativo:

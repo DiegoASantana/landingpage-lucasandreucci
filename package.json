@@ -1,0 +1,10 @@
+{
+  "name": "landingpage-lucasandreucci",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Site institucional publicado do Dr. Lucas Andreucci da Veiga: pagina estatica na raiz do repositorio e o endpoint do formulario de contato exposto em /api/contato, na mesma origem.",
+  "dependencies": {
+    "@supabase/supabase-js": "2.116.0",
+    "resend": "6.28.0"
+  }
+}

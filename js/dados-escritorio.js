@@ -65,7 +65,9 @@
 
     email: 'advlucasandreucci@outlook.com',
     endereco: 'Rua Tomé de Souza, 468 — Alto da Lapa, São Paulo/SP — CEP 05079-000',
-    oab: '{{OAB/SP nº 000.000}}',
+
+    // Seccional é a UF do conselho; número só em dígitos. Exibição derivada: "OAB/SP 329.792".
+    oab: { seccional: 'SP', numero: '329792' },
 
     foto: {
       src: 'img/Foto_drLucas.jpg',
@@ -110,11 +112,20 @@
     return '+' + DDI + ' ' + ddd + ' ' + resto.slice(0, corte) + '-' + resto.slice(corte);
   }
 
+  /* Inscrição no formato usual: "OAB/SP 329.792" (milhar com ponto). */
+  function oabExibicao(oab) {
+    var o = oab == null ? DADOS.oab : oab;
+    var numero = digitos(o && o.numero).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    var seccional = String((o && o.seccional) || '').trim().toUpperCase();
+    return seccional && numero ? 'OAB/' + seccional + ' ' + numero : '';
+  }
+
   // Valores que não são guardados: são calculados a partir de DADOS.
   var DERIVADOS = {
     linkWhatsapp: linkWhatsapp,
     linkTelefone: linkTelefone,
-    telefoneExibicao: telefoneExibicao
+    telefoneExibicao: telefoneExibicao,
+    oabExibicao: oabExibicao
   };
 
   /* Resolve a chave de um data-dado: primeiro os derivados, depois o caminho
@@ -180,6 +191,7 @@
     linkWhatsapp: linkWhatsapp,
     linkTelefone: linkTelefone,
     telefoneExibicao: telefoneExibicao,
+    oabExibicao: oabExibicao,
     valorDaChave: valorDaChave,
     aplicarDadosEscritorio: aplicarDadosEscritorio
   };

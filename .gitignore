@@ -1,0 +1,7 @@
+node_modules/
+
+# Metadados locais da CLI da Vercel.
+.vercel
+
+# Saidas locais de ferramenta.
+*.log

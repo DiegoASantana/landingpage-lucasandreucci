@@ -1,0 +1,15 @@
+{
+  "name": "landingpage-lucasandreucci-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes unitarios e de propriedade das funcoes puras do front-end do site institucional (validacao e submissao do formulario de contato)",
+  "scripts": {
+    "test": "vitest --run",
+    "test:prop": "vitest --run tests/propriedades"
+  },
+  "devDependencies": {
+    "fast-check": "4.10.0",
+    "jsdom": "30.0.1",
+    "vitest": "5.0.0"
+  }
+}

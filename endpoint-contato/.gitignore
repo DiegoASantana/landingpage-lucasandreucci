@@ -1,0 +1,15 @@
+node_modules/
+
+# Segredos de ambiente (DD-05 / Requisito 3.6): nunca versionar.
+# Apenas .env.example, sem valores reais, fica no repositorio.
+.env
+.env.*
+!.env.example
+
+# Registro de Consentimento_LGPD (DD-03): contem dados pessoais
+# (nome, e-mail, telefone, CPF, IP). Nunca versionar.
+*.jsonl
+
+# Saida de ferramentas
+coverage/
+*.log
