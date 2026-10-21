@@ -63,7 +63,7 @@
     // valor pelas funções abaixo — não existem como strings separadas.
     telefone: '11964048179',
 
-    email: 'advlucasandreucci@outlook.com',
+    email: 'lucasandreuccidaveiga@gmail.com',
     endereco: 'Rua Tomé de Souza, 468 — Alto da Lapa, São Paulo/SP — CEP 05079-000',
 
     // Seccional é a UF do conselho; número só em dígitos. Exibição derivada: "OAB/SP 329.792".
@@ -79,8 +79,15 @@
       'Com sólida formação acadêmica e foco constante em atualização jurídica, atua na elaboração de estratégias defensivas estruturadas, prezando pela garantia dos direitos fundamentais e pelo devido processo legal. A conduta profissional orienta-se pela ética, sigilo absoluto e acompanhamento atento às especificidades de cada demanda.'
     ],
 
-    formacao: 'Bacharel em Direito — Universidade Presbiteriana Mackenzie',
-    especializacao: 'Pós-graduação em Direito Penal e Processual Penal'
+    // Ordem de exibição: do maior título para o menor; no mesmo nível, o mais recente primeiro.
+    // No HTML, cada campo é lido por posição (ex.: "formacao.0.curso").
+    formacao: [
+      { curso: 'Doutorado em Processo Penal', instituicao: 'PUC-SP', periodo: '2020–2025' },
+      { curso: 'Mestrado em Direito Penal', instituicao: 'USP', periodo: '2014–2017' },
+      { curso: 'Especialização em Processo Penal', instituicao: 'Universidade de Coimbra, em parceria com o IBCCRIM', periodo: '2025' },
+      { curso: 'Especialização em Direito Penal e Processual Penal', instituicao: 'PUC-SP', periodo: '2013–2015' },
+      { curso: 'Graduação em Direito', instituicao: 'PUC-SP', periodo: '2008–2012' }
+    ]
   };
 
   // Código do país, usado nos dois links (wa.me e tel:).

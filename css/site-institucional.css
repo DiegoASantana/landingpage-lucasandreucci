@@ -328,7 +328,7 @@ background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(-
 
 .about-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: var(--space-10);
   align-items: center;
 }
@@ -352,33 +352,76 @@ background: linear-gradient(90deg, transparent 0%, var(--brand-olive) 20%, var(-
   margin: 0 0 var(--space-4);
 }
 
-.credential-list {
-  list-style: none;
-  padding: 0;
-  margin: var(--space-5) 0 0;
-  display: grid;
-  gap: var(--space-3);
-}
-.credential-list li {
+.formacao { margin-top: var(--space-6); }
+.formacao-titulo {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 14px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-olive);
+  margin: 0 0 var(--space-4);
+}
+.formacao-titulo svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Linha do tempo: um ícone só no título; cada item ganha um marcador na linha vertical. */
+.formacao-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-5);
+  border-left: 2px solid rgba(94, 108, 68, 0.25);
+  display: grid;
+  gap: var(--space-4);
+}
+.formacao-lista li { position: relative; }
+/* Centraliza o marcador de 10px sobre a borda de 2px: -(padding + 1px) - 5px. */
+.formacao-lista li::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--space-5) - 6px);
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand-white);
+  border: 2px solid var(--brand-olive);
+}
+.formacao-curso {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--on-light-primary);
 }
-.credential-list li svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: var(--brand-olive);
+.formacao-meta {
+  display: block;
   margin-top: 2px;
+  font-size: 13px;
+  color: var(--on-light-secondary);
 }
+
+.about-registro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-6);
+}
+.about-sociedade {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--on-light-secondary);
+}
+.about-sociedade svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--brand-olive); }
 
 .oab-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: var(--space-5);
   padding: 8px 14px;
   border: 1px solid var(--brand-olive);
   border-radius: var(--radius-md);
