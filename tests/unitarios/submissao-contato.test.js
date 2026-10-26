@@ -10,6 +10,9 @@ const {
   MSG_SUCESSO,
   MSG_ERRO_ENVIO,
   MSG_ERRO_DADOS,
+  MSG_ERRO_ORIGEM,
+  MSG_ERRO_LIMITE,
+  MSG_ERRO_CONEXAO,
 } = require("../../js/site-institucional.js");
 
 // Valores válidos: garantem que a validação client-side passa e o fetch é
@@ -62,8 +65,8 @@ function valoresAtuais(form) {
 }
 
 // Resposta mínima no formato que o handler inspeciona (`ok` e `status`).
-function respostaHttp(status) {
-  return { ok: status >= 200 && status < 300, status };
+function respostaHttp(status, corpo = { ok: true }) {
+  return { ok: status >= 200 && status < 300, status, json: () => Promise.resolve(corpo) };
 }
 
 describe("submissão do formulário — 400 vs. falha de envio (Requisitos 1.10, 1.13)", () => {
@@ -107,8 +110,40 @@ describe("submissão do formulário — 400 vs. falha de envio (Requisitos 1.10,
     const api = ligar(() => Promise.reject(new Error("rede-indisponivel")));
     await api.aoSubmeter({ preventDefault() {} });
 
+    expect(document.getElementById("erro-envio").textContent).toBe(MSG_ERRO_CONEXAO);
+    expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("403 informa origem não autorizada sem reenviar para o endpoint antigo", async () => {
+    const api = ligar(() => Promise.resolve(respostaHttp(403)));
+    await api.aoSubmeter({ preventDefault() {} });
+    expect(chamadas).toBe(1);
+    expect(document.getElementById("erro-envio").textContent).toBe(MSG_ERRO_ORIGEM);
+    expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("429 pede para aguardar e preserva os dados", async () => {
+    const api = ligar(() => Promise.resolve(respostaHttp(429)));
+    await api.aoSubmeter({ preventDefault() {} });
+    expect(document.getElementById("erro-envio").textContent).toBe(MSG_ERRO_LIMITE);
+    expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("200 sem confirmação JSON não anuncia sucesso", async () => {
+    const api = ligar(() => Promise.resolve(respostaHttp(200, { ok: false })));
+    await api.aoSubmeter({ preventDefault() {} });
     expect(document.getElementById("erro-envio").textContent).toBe(MSG_ERRO_ENVIO);
     expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("usa só a URL configurada e registra um handler por formulário", async () => {
+    const urls = [];
+    form.setAttribute("data-endpoint", "https://exemplo.cernejur.com.br/api/publico/contatos");
+    const config = { fetch: (url) => { urls.push(url); return Promise.resolve(respostaHttp(200)); } };
+    const api = inicializarFormularioContato(form, config);
+    expect(inicializarFormularioContato(form, { url: "/api/contato", fetch: config.fetch })).toBe(api);
+    await api.aoSubmeter({ preventDefault() {} });
+    expect(urls).toEqual(["https://exemplo.cernejur.com.br/api/publico/contatos"]);
   });
 
   it("as duas mensagens de falha são distintas entre si", () => {

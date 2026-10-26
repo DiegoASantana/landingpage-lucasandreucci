@@ -129,6 +129,11 @@ describe("validarFormularioContato — Requisitos 1.3, 1.4, 1.6, 1.9, 1.11, 2.3"
     expect(erros.cpf).toBe("CPF inválido.");
   });
 
+  it("exige nome com ao menos três caracteres como o Cerne", () => {
+    expect(validarFormularioContato({ ...valido, nome: " Lu " }).nome).toBe("Informe pelo menos 3 caracteres.");
+    expect(validarFormularioContato({ ...valido, nome: "Lucas" })).toEqual({});
+  });
+
   it("acusa ausência do consentimento LGPD sem alterar os valores recebidos", () => {
     const valores = { ...valido, consentimentoLGPD: false };
     const erros = validarFormularioContato(valores);

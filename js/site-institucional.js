@@ -318,7 +318,7 @@
    e que mantém uma única fonte da verdade das regras de validação.
 
    Regras implementadas (requirements.md, Fase 1):
-     1.3 / 1.4 — Nome, E-mail, Telefone e CPF obrigatórios ("Este campo é obrigatório.")
+     1.3 / 1.4 — Nome (mín. 3 caracteres), E-mail, Telefone e CPF obrigatórios
      1.6       — CPF válido pelo dígito verificador da Receita Federal ("CPF inválido.")
      1.9       — Telefone com exatamente 10 ou 11 dígitos ("Telefone inválido.")
      1.11      — E-mail em formato válido ("E-mail inválido.")
@@ -403,9 +403,11 @@
     var erros = {};
 
     if (ehEmBranco(valores.nome)) erros.nome = 'Este campo é obrigatório.';
+    else if (String(valores.nome).trim().length < 3) erros.nome = 'Informe pelo menos 3 caracteres.';
+    else if (String(valores.nome).trim().length > 200) erros.nome = 'Nome muito longo.';
 
     if (ehEmBranco(valores.email)) erros.email = 'Este campo é obrigatório.';
-    else if (!emailValido(valores.email)) erros.email = 'E-mail inválido.';
+    else if (!emailValido(valores.email) || String(valores.email).trim().length > 150) erros.email = 'E-mail inválido.';
 
     if (ehEmBranco(valores.telefone)) erros.telefone = 'Este campo é obrigatório.';
     else if (!telefoneValido(valores.telefone)) erros.telefone = 'Telefone inválido.';
@@ -461,19 +463,9 @@
 (function (raiz) {
   'use strict';
 
-  /* ----------------------------------------------------------------------
-     CONFIGURAÇÃO — ÚNICO lugar onde a URL do Endpoint_de_Envio é definida.
-     O host do endpoint ainda não está decidido (design.md — "Fora do escopo":
-     a escolha do provedor de hospedagem do Endpoint_de_Envio). Por isso o
-     padrão é um caminho RELATIVO: funciona sem alteração quando o endpoint
-     for servido no mesmo domínio do site institucional, que é o cenário mais
-     provável, e não vaza nome de provedor nenhum para o HTML publicado.
-     Quando o host for decidido, há duas formas de apontar para ele sem mexer
-     em mais nenhuma linha deste arquivo:
-       1. trocar o valor da constante abaixo por uma URL absoluta; ou
-       2. declarar data-endpoint="https://..." no <form id="form-contato">
-          (útil para abrir o protótipo via file:// contra um endpoint remoto).
-     ---------------------------------------------------------------------- */
+  /* O atributo data-endpoint no formulário escolhe um único destino de envio.
+     Até a API pública do Cerne estar disponível e validada, o padrão continua
+     sendo a função da própria landing. Em teste, opcoes.url pode substituí-lo. */
   var ENDPOINT_CONTATO_URL = '/api/contato';
 
   // Mensagens literais exigidas pelos requisitos (3.3 e 1.10/3.4).
@@ -483,6 +475,9 @@
   // falha de envio, porque a ação do Visitante também é distinta (revisar o
   // que digitou, em vez de tentar de novo mais tarde).
   var MSG_ERRO_DADOS = 'Não foi possível enviar: revise os dados informados e tente novamente.';
+  var MSG_ERRO_ORIGEM = 'Este formulário ainda não está autorizado a enviar. Avise o escritório.';
+  var MSG_ERRO_LIMITE = 'Muitas tentativas de envio. Aguarde alguns minutos e tente novamente.';
+  var MSG_ERRO_CONEXAO = 'Não foi possível acessar o serviço de contato. Tente novamente ou avise o escritório.';
 
   // Chave de erro devolvida por validarFormularioContato -> id do <span> de
   // erro no HTML -> nome do campo que recebe o foco/aria-invalid.
@@ -678,6 +673,7 @@
      permite aguardar o fim do envio em teste sem timers. */
   function inicializarFormularioContato(form, opcoes) {
     if (!form || typeof form.addEventListener !== 'function') return null;
+    if (form.__envioContato) return form.__envioContato;
 
     var config = opcoes || {};
     var api = nucleo();
@@ -718,28 +714,33 @@
         .then(function () {
           return requisicao(url, {
             method: 'POST',
+            credentials: 'omit',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(montarCorpo(valores, api.apenasDigitos))
           });
         })
         .then(function (resposta) {
-          // Requisito 1.13 — 400 é recusa dos dados pelo Endpoint_de_Envio
-          // (payload_invalido / consentimento_ausente): a validação do
-          // navegador e a do servidor divergiram em algum ponto, e o Visitante
-          // precisa revisar o que digitou, não tentar de novo mais tarde.
-          if (resposta && resposta.status === 400) throw new Error('dados-recusados');
-          // Requisitos 1.10 e 3.4 — 502 e qualquer outra resposta não-2xx são
-          // falha de envio, não recusa de dado.
+          if (resposta && (resposta.status === 400 || resposta.status === 422)) throw new Error('dados-recusados');
+          if (resposta && resposta.status === 403) throw new Error('origem-nao-autorizada');
+          if (resposta && resposta.status === 429) throw new Error('limite-excedido');
           if (!resposta || !resposta.ok) throw new Error('envio-falhou');
-          exibirSucesso(form, MSG_SUCESSO); // Requisito 3.3
-          form.reset();
+          // A confirmação exige o contrato { ok: true }. Uma página HTML de
+          // fallback com status 200 não significa que o contato foi recebido.
+          return resposta.json().then(function (corpo) {
+            if (!corpo || corpo.ok !== true) throw new Error('envio-falhou');
+            exibirSucesso(form, MSG_SUCESSO);
+            form.reset();
+          }, function () { throw new Error('envio-falhou'); });
         })
         .catch(function (erro) {
-          // Requisitos 1.10, 1.13 e 3.4 — mensagem de falha; form.reset() NÃO é
-          // chamado em nenhum destes ramos, então tudo que o Visitante digitou
-          // permanece nos campos.
-          var recusa = erro && erro.message === 'dados-recusados';
-          exibirErroEnvio(form, recusa ? MSG_ERRO_DADOS : MSG_ERRO_ENVIO);
+          // Uma falha de CORS também aparece como erro de conexão no navegador:
+          // a resposta 403 não fica disponível ao JavaScript da outra origem.
+          var codigo = erro && erro.message;
+          var mensagem = codigo === 'dados-recusados' ? MSG_ERRO_DADOS :
+            codigo === 'origem-nao-autorizada' ? MSG_ERRO_ORIGEM :
+            codigo === 'limite-excedido' ? MSG_ERRO_LIMITE :
+            codigo === 'envio-falhou' ? MSG_ERRO_ENVIO : MSG_ERRO_CONEXAO;
+          exibirErroEnvio(form, mensagem);
         })
         .then(function () {
           enviando = false;
@@ -749,7 +750,7 @@
 
     form.addEventListener('submit', aoSubmeter);
 
-    return {
+    var interfaceEnvio = {
       url: url,
       aoSubmeter: aoSubmeter,
       limparErros: function () { return limparErros(form); },
@@ -758,6 +759,8 @@
       exibirErroEnvio: function (mensagem) { return exibirErroEnvio(form, mensagem || MSG_ERRO_ENVIO); },
       definirCarregando: function (carregando) { return definirCarregando(form, carregando); }
     };
+    form.__envioContato = interfaceEnvio;
+    return interfaceEnvio;
   }
 
   if (typeof module === 'object' && module !== null && module.exports) {
@@ -766,6 +769,9 @@
     module.exports.MSG_SUCESSO = MSG_SUCESSO;
     module.exports.MSG_ERRO_ENVIO = MSG_ERRO_ENVIO;
     module.exports.MSG_ERRO_DADOS = MSG_ERRO_DADOS;
+    module.exports.MSG_ERRO_ORIGEM = MSG_ERRO_ORIGEM;
+    module.exports.MSG_ERRO_LIMITE = MSG_ERRO_LIMITE;
+    module.exports.MSG_ERRO_CONEXAO = MSG_ERRO_CONEXAO;
   }
   if (raiz) raiz.inicializarFormularioContato = inicializarFormularioContato;
 

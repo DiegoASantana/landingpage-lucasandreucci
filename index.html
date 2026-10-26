@@ -343,15 +343,16 @@
         </div>
 
         <div class="contact-form-card">
-          <form id="form-contato" novalidate>
+          <!-- Trocar data-endpoint pela URL pública do Cerne somente após validar o deploy e o CORS. -->
+          <form id="form-contato" data-endpoint="/api/contato" novalidate>
             <div class="field">
               <label for="nome">Nome <span class="required" aria-hidden="true">*</span></label>
-              <input class="input" type="text" id="nome" name="nome" maxlength="200" placeholder="Seu nome completo" required autocomplete="name">
+              <input class="input" type="text" id="nome" name="nome" minlength="3" maxlength="200" placeholder="Seu nome completo" required autocomplete="name">
               <span class="field-error" id="erro-nome" hidden></span>
             </div>
             <div class="field">
               <label for="email-contato">E-mail <span class="required" aria-hidden="true">*</span></label>
-              <input class="input" type="email" id="email-contato" name="email" placeholder="seuemail@exemplo.com" required autocomplete="email">
+              <input class="input" type="email" id="email-contato" name="email" maxlength="150" placeholder="seuemail@exemplo.com" required autocomplete="email">
               <span class="field-error" id="erro-email" hidden></span>
             </div>
             <div class="field">
