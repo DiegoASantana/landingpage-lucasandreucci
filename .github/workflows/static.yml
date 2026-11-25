@@ -12,7 +12,6 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  actions: read # deploy-pages@v5 lê os metadados do artefato pela API de Actions
   pages: write
   id-token: write
 
@@ -35,10 +34,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        # v4: a v5 passou a falhar com "No artifacts named github-pages" (25/11/2026).
+        uses: actions/deploy-pages@v4
