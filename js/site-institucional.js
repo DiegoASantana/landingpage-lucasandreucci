@@ -52,6 +52,89 @@
 })();
 
 /* ==========================================================================
+   Menu: destaca a seção em que o visitante está
+   Ao rolar, o link da seção visível recebe aria-current="true" (mesmo visual
+   do hover) e uma barra única desliza até ele. Na hero nenhum link fica
+   ativo. Progressive enhancement: sem JS os links continuam funcionando.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+  var nav = document.getElementById('site-nav');
+  if (!nav) return;
+
+  var itens = [];
+  Array.prototype.forEach.call(nav.querySelectorAll('a.nav-link[href^="#"]'), function (link) {
+    var secao = document.getElementById(link.getAttribute('href').slice(1));
+    if (secao) itens.push({ link: link, secao: secao });
+  });
+  if (!itens.length) return;
+
+  var header = document.querySelector('.site-header');
+  var indicador = document.createElement('span');
+  indicador.className = 'nav-indicador';
+  indicador.setAttribute('aria-hidden', 'true');
+  nav.appendChild(indicador);
+  nav.classList.add('com-indicador');
+
+  var ativo = null;
+  var agendado = false;
+
+  function itemAtual() {
+    var alturaHeader = header ? header.offsetHeight : 0;
+    // A seção vale como "atual" quando seu topo passa de um terço da área
+    // visível abaixo do header.
+    var linha = alturaHeader + (window.innerHeight - alturaHeader) / 3;
+    var doc = document.documentElement;
+    if (window.innerHeight + window.pageYOffset >= doc.scrollHeight - 2) {
+      return itens[itens.length - 1]; // fim da página: a última seção é a atual
+    }
+    var atual = null;
+    itens.forEach(function (item) {
+      if (item.secao.getBoundingClientRect().top <= linha) atual = item;
+    });
+    return atual;
+  }
+
+  function posicionarIndicador() {
+    if (!ativo) {
+      indicador.classList.remove('visivel');
+      return;
+    }
+    var link = ativo.link;
+    indicador.style.width = link.offsetWidth + 'px';
+    indicador.style.transform = 'translate(' + link.offsetLeft + 'px, ' +
+      (link.offsetTop + link.offsetHeight - 2) + 'px)';
+    indicador.classList.add('visivel');
+  }
+
+  function atualizar() {
+    agendado = false;
+    var novo = itemAtual();
+    if (novo !== ativo) {
+      if (ativo) ativo.link.removeAttribute('aria-current');
+      if (novo) novo.link.setAttribute('aria-current', 'true');
+      ativo = novo;
+    }
+    posicionarIndicador();
+  }
+
+  function agendar() {
+    if (agendado) return;
+    agendado = true;
+    window.requestAnimationFrame(atualizar);
+  }
+
+  window.addEventListener('scroll', agendar, { passive: true });
+  window.addEventListener('resize', agendar);
+  // As fontes podem mudar a largura dos links depois do primeiro cálculo.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(agendar);
+  atualizar();
+})();
+
+/* ==========================================================================
    Áreas de atuação — transição de elemento único (shared-element / FLIP)
    Cada .area-card é O MESMO elemento do início ao fim: ao ativar, capturamos
    seu getBoundingClientRect(), fixamos o card nessa posição exata (position:
@@ -463,9 +546,9 @@
 (function (raiz) {
   'use strict';
 
-  /* O atributo data-endpoint no formulário escolhe um único destino de envio.
-     Até a API pública do Cerne estar disponível e validada, o padrão continua
-     sendo a função da própria landing. Em teste, opcoes.url pode substituí-lo. */
+  /* O atributo data-endpoint no formulário escolhe um único destino de envio
+     (hoje, a API pública do Cerne). Sem ele, cai na função antiga da própria
+     landing. Em teste, opcoes.url pode substituí-lo. */
   var ENDPOINT_CONTATO_URL = '/api/contato';
 
   // Mensagens literais exigidas pelos requisitos (3.3 e 1.10/3.4).
@@ -478,6 +561,9 @@
   var MSG_ERRO_ORIGEM = 'Este formulário ainda não está autorizado a enviar. Avise o escritório.';
   var MSG_ERRO_LIMITE = 'Muitas tentativas de envio. Aguarde alguns minutos e tente novamente.';
   var MSG_ERRO_CONEXAO = 'Não foi possível acessar o serviço de contato. Tente novamente ou avise o escritório.';
+  // 503 { erro: 'indisponivel' } do Cerne: o sistema não está aceitando contatos
+  // agora (D-54). O motivo real não é exposto ao visitante; o contato não foi gravado.
+  var MSG_ERRO_INDISPONIVEL = 'Desculpe, por enquanto o sistema de envio está fora do ar. Tente novamente mais tarde.';
 
   // Chave de erro devolvida por validarFormularioContato -> id do <span> de
   // erro no HTML -> nome do campo que recebe o foco/aria-invalid.
@@ -723,6 +809,7 @@
           if (resposta && (resposta.status === 400 || resposta.status === 422)) throw new Error('dados-recusados');
           if (resposta && resposta.status === 403) throw new Error('origem-nao-autorizada');
           if (resposta && resposta.status === 429) throw new Error('limite-excedido');
+          if (resposta && resposta.status === 503) throw new Error('indisponivel');
           if (!resposta || !resposta.ok) throw new Error('envio-falhou');
           // A confirmação exige o contrato { ok: true }. Uma página HTML de
           // fallback com status 200 não significa que o contato foi recebido.
@@ -739,6 +826,7 @@
           var mensagem = codigo === 'dados-recusados' ? MSG_ERRO_DADOS :
             codigo === 'origem-nao-autorizada' ? MSG_ERRO_ORIGEM :
             codigo === 'limite-excedido' ? MSG_ERRO_LIMITE :
+            codigo === 'indisponivel' ? MSG_ERRO_INDISPONIVEL :
             codigo === 'envio-falhou' ? MSG_ERRO_ENVIO : MSG_ERRO_CONEXAO;
           exibirErroEnvio(form, mensagem);
         })
@@ -772,6 +860,7 @@
     module.exports.MSG_ERRO_ORIGEM = MSG_ERRO_ORIGEM;
     module.exports.MSG_ERRO_LIMITE = MSG_ERRO_LIMITE;
     module.exports.MSG_ERRO_CONEXAO = MSG_ERRO_CONEXAO;
+    module.exports.MSG_ERRO_INDISPONIVEL = MSG_ERRO_INDISPONIVEL;
   }
   if (raiz) raiz.inicializarFormularioContato = inicializarFormularioContato;
 

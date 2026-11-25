@@ -13,6 +13,7 @@ const {
   MSG_ERRO_ORIGEM,
   MSG_ERRO_LIMITE,
   MSG_ERRO_CONEXAO,
+  MSG_ERRO_INDISPONIVEL,
 } = require("../../js/site-institucional.js");
 
 // Valores válidos: garantem que a validação client-side passa e o fetch é
@@ -127,6 +128,22 @@ describe("submissão do formulário — 400 vs. falha de envio (Requisitos 1.10,
     await api.aoSubmeter({ preventDefault() {} });
     expect(document.getElementById("erro-envio").textContent).toBe(MSG_ERRO_LIMITE);
     expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("503 do Cerne (indisponível) exibe a mensagem de sistema fora do ar e preserva os dados", async () => {
+    const api = ligar(() => Promise.resolve(respostaHttp(503, { ok: false, erro: "indisponivel" })));
+    await api.aoSubmeter({ preventDefault() {} });
+    expect(document.getElementById("erro-envio").textContent).toBe(
+      "Desculpe, por enquanto o sistema de envio está fora do ar. Tente novamente mais tarde."
+    );
+    expect(MSG_ERRO_INDISPONIVEL).toBe(document.getElementById("erro-envio").textContent);
+    expect(valoresAtuais(form)).toEqual(PREENCHIDO);
+  });
+
+  it("o formulário publicado aponta para a API pública do Cerne em homologação", async () => {
+    const { readFileSync } = await import("node:fs");
+    const html = readFileSync(require.resolve("../../index.html"), "utf8");
+    expect(html).toContain('data-endpoint="https://homologacao.cernejur.com.br/api/publico/contatos"');
   });
 
   it("200 sem confirmação JSON não anuncia sucesso", async () => {

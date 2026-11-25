@@ -141,6 +141,17 @@
    Header fixo
    ========================================================================== */
 
+/* O header fica por cima do conteúdo (sticky). Sem esta folga, os links
+   #sobre/#atuacao/#contato levam o topo da seção para baixo do header e
+   escondem o eyebrow e o início do título. O valor acompanha a altura do
+   header (.site-header .container). */
+html {
+  scroll-padding-top: 84px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -190,6 +201,31 @@
   color: var(--on-dark-primary);
   text-decoration: none;
   border-bottom-color: var(--brand-olive-bright);
+}
+/* Seção em que o visitante está (aria-current, definido via JS ao rolar). */
+.site-nav a.nav-link[aria-current="true"] {
+  color: var(--on-dark-primary);
+  border-bottom-color: var(--brand-olive-bright);
+}
+
+/* Sublinhado deslizante: com JS, uma barra única corre até o link da seção
+   atual, no lugar do border-bottom estático do link ativo. */
+.site-nav { position: relative; }
+.nav-indicador {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 0;
+  background: var(--brand-olive-bright);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 300ms ease, width 300ms ease, opacity 200ms;
+}
+.nav-indicador.visivel { opacity: 1; }
+.site-nav.com-indicador a.nav-link[aria-current="true"]:not(:hover) { border-bottom-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .nav-indicador { transition: none; }
 }
 
 .nav-cta {
@@ -918,6 +954,15 @@ body.area-modal-locked { overflow: hidden; }
     border-bottom: 1px solid var(--dark-border);
   }
   .site-nav a.nav-link:hover { border-bottom-color: var(--dark-border); }
+  /* No menu empilhado a barra deslizante não faz sentido: o link ativo
+     ganha só a cor e um marcador à esquerda. */
+  .nav-indicador { display: none; }
+  .site-nav.com-indicador a.nav-link[aria-current="true"],
+  .site-nav a.nav-link[aria-current="true"] {
+    border-bottom-color: var(--dark-border);
+    box-shadow: inset 3px 0 0 var(--brand-olive-bright);
+    padding-left: var(--space-3);
+  }
   .nav-cta {
     margin-top: var(--space-4);
     justify-content: center;

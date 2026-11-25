@@ -32,6 +32,10 @@
       <a class="nav-link" href="#sobre">Sobre</a>
       <a class="nav-link" href="#atuacao">Atuação</a>
       <a class="nav-link" href="#contato">Contato</a>
+      <a class="nav-cta" href="https://homologacao.cernejur.com.br">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Acessar sistema
+      </a>
     </nav>
   </div>
 </header>
@@ -343,8 +347,10 @@
         </div>
 
         <div class="contact-form-card">
-          <!-- Trocar data-endpoint pela URL pública do Cerne somente após validar o deploy e o CORS. -->
-          <form id="form-contato" data-endpoint="/api/contato" novalidate>
+          <!-- Contatos vão para a API pública do Cerne (homologação). O Cerne só aceita
+               a origem configurada em SITE_ORIGIN na VPS. Na produção, trocar pelo
+               domínio lucasandreucci.cernejur.com.br. -->
+          <form id="form-contato" data-endpoint="https://homologacao.cernejur.com.br/api/publico/contatos" novalidate>
             <div class="field">
               <label for="nome">Nome <span class="required" aria-hidden="true">*</span></label>
               <input class="input" type="text" id="nome" name="nome" minlength="3" maxlength="200" placeholder="Seu nome completo" required autocomplete="name">
@@ -430,6 +436,7 @@
     <div class="footer-bottom">
       <span data-dado="nomeAdvogado" data-dado-prefixo="© 2026 "
         data-dado-sufixo=" — Advocacia Criminal. Todos os direitos reservados.">© 2026 Dr. Lucas Andreucci da Veiga — Advocacia Criminal. Todos os direitos reservados.</span>
+      <a class="footer-login" href="https://homologacao.cernejur.com.br">Área restrita — Acessar sistema</a>
     </div>
   </div>
 </footer>
